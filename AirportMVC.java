@@ -9,7 +9,7 @@ public class AirportMVC extends Application {
         primaryStage.setTitle("Airport MVC");
         Model model = new Model();
         Controller controller = new Controller(model);
-        View view = new View(controller, model);
+        View view = new View(controller, model, primaryStage);
 
         Scene scene = new Scene(view.asParent(), 300, 300);
         primaryStage.setScene(scene);

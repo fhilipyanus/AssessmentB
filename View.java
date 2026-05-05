@@ -7,6 +7,9 @@ import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 public class View {
     private VBox view;
@@ -24,11 +27,13 @@ public class View {
 
     private Controller controller;
     private Model model;
+    private Stage primaryStage;
 
-    public View(Controller controller, Model model) {
+    public View(Controller controller, Model model, Stage primaryStage) {
 
         this.controller = controller;
         this.model = model;
+        this.primaryStage = primaryStage;
 
         createAndConfigurePane();
         createAndLayoutControls();
@@ -60,6 +65,9 @@ public class View {
         heading = new Label("Airport Check In System");
         sampleField = new TextField();
         seatSelectButton = new Button("Select a Seat for The Customer");
+        seatSelectButton.setOnAction(e -> {
+            createSeatSelectionWindow();
+        });
         baggageCheckInButton = new Button("Baggage Check In");
         createBoardingPassButton = new Button("Create Boarding Pass");
         retrieveInformationButton = new Button("Retrieve Information");
@@ -91,6 +99,41 @@ public class View {
     private void createAndConfigurePane() {
         view = new VBox(5);
         view.setAlignment(Pos.CENTER);
+    }
+
+    private void createSeatSelectionWindow() {
+        Stage stage = new Stage();
+        stage.initOwner(primaryStage);
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        TextField bookingReferenceField = new TextField();
+        HBox bookingReferenceRow = new HBox(5, new Label("Booking Reference:"), bookingReferenceField);
+        bookingReferenceRow.setAlignment(Pos.CENTER);
+
+        TextField seatRowField = new TextField();
+        HBox seatRowRow = new HBox(5, new Label("Enter Seat Row (1-30) :"), seatRowField);
+        seatRowRow.setAlignment(Pos.CENTER);
+        configTextFieldForInts(seatRowField);
+
+        TextField seatColumnField = new TextField();
+        HBox seatColumnRow = new HBox(5, new Label("Enter Seat Column (A-F) :"), seatColumnField);
+        seatColumnRow.setAlignment(Pos.CENTER);
+
+        Button addSeatButton = new Button("Add Seat");
+        addSeatButton.setOnAction(e -> {
+            if (!text.isEmpty()) {
+                // TODO: call addSeatButton.setOnAction here
+                stage.close();
+            }
+        });
+
+        VBox root = new VBox(5, bookingReferenceRow, seatRowRow, seatColumnRow, addSeatButton);
+        root.setAlignment(Pos.CENTER);
+
+        Scene helloScene = new Scene(root, 300, 190);
+
+        stage.setScene(helloScene);
+        stage.show();
     }
 
     // You may skip looking at this method. Its purpose is to ensure that
