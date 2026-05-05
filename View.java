@@ -10,6 +10,7 @@ import javafx.scene.layout.VBox;
 public class View {
     private VBox view;
     private TextField sampleField;
+    private Label heading;
 
     private Controller controller;
     private Model model;
@@ -22,15 +23,11 @@ public class View {
         createAndConfigurePane();
         createAndLayoutControls();
         updateControllerFromListeners();
-        sampleFunc();
+        observeModelAndUpdateControls();
     }
 
     public Parent asParent() {
         return view;
-    }
-
-    private void sampleFunc() {
-
     }
 
     // If the given field has changed, update its text value.
@@ -50,11 +47,12 @@ public class View {
     }
 
     private void createAndLayoutControls() {
+        heading = new Label("Airport Check In System");
         sampleField = new TextField();
         configTextFieldForInts(sampleField);
 
-        HBox sampleRow = new HBox(5, sampleField);
-        sampleRow.setAlignment(Pos.CENTER);
+        HBox sampleRow = new HBox(5, heading, sampleField);
+        sampleRow.setAlignment(Pos.BASELINE_LEFT);
 
         view.getChildren().addAll(sampleRow);
     }
