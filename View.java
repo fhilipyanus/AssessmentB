@@ -4,6 +4,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.control.TextFormatter.Change;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -11,6 +12,15 @@ public class View {
     private VBox view;
     private TextField sampleField;
     private Label heading;
+    private Button seatSelectButton;
+    private Button baggageCheckInButton;
+    private Button createBoardingPassButton;
+    private Button retrieveInformationButton;
+    private Button extraPaymentsButton;
+    private Button identityVerificationButton;
+    private Button checkContrabandButton;
+    private Button selfCheckInButton;
+    private Button agentCheckInButton;
 
     private Controller controller;
     private Model model;
@@ -49,12 +59,33 @@ public class View {
     private void createAndLayoutControls() {
         heading = new Label("Airport Check In System");
         sampleField = new TextField();
+        seatSelectButton = new Button("Select a Seat for The Customer");
+        baggageCheckInButton = new Button("Baggage Check In");
+        createBoardingPassButton = new Button("Create Boarding Pass");
+        retrieveInformationButton = new Button("Retrieve Information");
+        extraPaymentsButton = new Button("Extra Payments");
+        identityVerificationButton = new Button("Identity Verification");
+        checkContrabandButton = new Button("Check Contraband");
+        selfCheckInButton = new Button("Self Check In");
+        agentCheckInButton = new Button("Agent Check In");
         configTextFieldForInts(sampleField);
 
         HBox sampleRow = new HBox(5, heading, sampleField);
+        VBox columns = new VBox(
+                5,
+                sampleRow,
+                seatSelectButton,
+                baggageCheckInButton,
+                createBoardingPassButton,
+                retrieveInformationButton,
+                extraPaymentsButton,
+                identityVerificationButton,
+                checkContrabandButton,
+                selfCheckInButton,
+                agentCheckInButton);
         sampleRow.setAlignment(Pos.BASELINE_LEFT);
 
-        view.getChildren().addAll(sampleRow);
+        view.getChildren().addAll(columns);
     }
 
     private void createAndConfigurePane() {
