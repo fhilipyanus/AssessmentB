@@ -660,15 +660,7 @@ class BoardingPass {
 }
 
 interface CheckInService {
-    void selectSeat();
-
-    void checkInBaggage();
-
-    void createBoardingPass();
-
     void verifyIdentity();
-
-    void handlePayment();
 }
 
 class CheckIn implements CheckInService {
@@ -688,25 +680,6 @@ class CheckIn implements CheckInService {
         this.flight = flight;
     }
 
-    @Override
-    public void selectSeat() {
-        if (flight == null) {
-            System.out.println("No flight assigned; cannot select seat.");
-            return;
-        }
-        System.out.print("Enter seat row (1-30): ");
-        int row = In.nextInt();
-        System.out.print("Enter seat column (A-F): ");
-        String col = In.nextLine();
-        String seatNumber = "" + row + col;
-        Seat seat = flight.findSeatByNumber(seatNumber);
-        if (seat == null) {
-            System.out.println("No such seat on this flight: " + seatNumber);
-            return;
-        }
-        selectSeat(seat);
-    }
-
     public void selectSeat(Seat seat) {
         if ((seat != null) && (seat.checkAvailability())) {
             seat.assignSeat();
@@ -715,13 +688,6 @@ class CheckIn implements CheckInService {
         } else {
             System.out.println("Seat is not available");
         }
-    }
-
-    @Override
-    public void checkInBaggage() {
-        System.out.print("Enter baggage weight (kg): ");
-        double weight = In.nextDouble();
-        checkInBaggage(new Baggage(Model.nextBaggageId(), weight));
     }
 
     public void checkInBaggage(Baggage baggage) {
@@ -733,26 +699,6 @@ class CheckIn implements CheckInService {
         }
     }
 
-    @Override
-    public void createBoardingPass() {
-        if (flight == null) {
-            System.out.println("No flight assigned; cannot create boarding pass.");
-            return;
-        }
-        int boardingPassID = Model.nextBoardingPassId();
-        System.out.print("Enter seat row (1-30) for boarding pass: ");
-        int row = In.nextInt();
-        System.out.print("Enter seat column (A-F): ");
-        String col = In.nextLine();
-        String seatNumber = "" + row + col;
-        Seat seat = flight.findSeatByNumber(seatNumber);
-        if (seat == null) {
-            System.out.println("No such seat on this flight: " + seatNumber);
-            return;
-        }
-        createBoardingPass(boardingPassID, seat, flight);
-    }
-
     public void createBoardingPass(int boardingPassID, Seat seat, Flight flight) {
         BoardingPass boardingPass = new BoardingPass(boardingPassID, seat, flight);
     }
@@ -760,15 +706,6 @@ class CheckIn implements CheckInService {
     @Override
     public void verifyIdentity() {
         System.out.println("Identity verified");
-    }
-
-    @Override
-    public void handlePayment() {
-        System.out.print("Enter amount: ");
-        double amount = In.nextDouble();
-        System.out.print("Enter payment type: ");
-        String paymentType = In.nextLine();
-        handlePayment(new Payment(Model.nextPaymentId(), amount, paymentType));
     }
 
     public void handlePayment(Payment payment) {
@@ -794,12 +731,10 @@ class SelfCheckIn extends CheckIn {
         this.machineID = machineID;
     }
 
-    @Override
     public void handlePayment() {
         handlePayment(new Payment(Model.nextPaymentId(), STANDARD_TICKET_PRICE, "STANDARD_TICKET"));
     }
 
-    @Override
     public void createBoardingPass() {
         if (flight == null) {
             System.out.println("No flight assigned; cannot create boarding pass.");
@@ -811,18 +746,6 @@ class SelfCheckIn extends CheckIn {
         }
         int boardingPassID = Model.nextBoardingPassId();
         createBoardingPass(boardingPassID, seatSelectedThisSession, flight);
-    }
-
-    void startSelfCheckIn() {
-        System.out.println("Starting self cehck-in at machine: " + machineID);
-
-        verifyIdentity();
-        selectSeat();
-        checkInBaggage();
-        handlePayment();
-        createBoardingPass();
-
-        System.out.println("Self check-in completed.");
     }
 }
 
@@ -836,12 +759,10 @@ class CounterCheckIn extends CheckIn {
         this.counterID = counterID;
     }
 
-    @Override
     public void handlePayment() {
         handlePayment(new Payment(Model.nextPaymentId(), STANDARD_TICKET_PRICE, "STANDARD_TICKET"));
     }
 
-    @Override
     public void createBoardingPass() {
         if (flight == null) {
             System.out.println("No flight assigned; cannot create boarding pass.");
