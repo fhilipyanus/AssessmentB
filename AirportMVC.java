@@ -11,7 +11,7 @@ public class AirportMVC extends Application {
         Controller controller = new Controller(model);
         View view = new View(controller, model, primaryStage);
 
-        Scene scene = new Scene(view.asParent(), 300, 300);
+        Scene scene = new Scene(view.asParent(), 500, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
