@@ -121,16 +121,19 @@ public class View {
 
         Button addSeatButton = new Button("Add Seat");
         addSeatButton.setOnAction(e -> {
-            if (!text.isEmpty()) {
-                // TODO: call addSeatButton.setOnAction here
-                stage.close();
-            }
+            controller.selectSeat(
+                    bookingReferenceField.getText(),
+                    seatRowField.getText(),
+                    seatColumnField.getText());
         });
 
-        VBox root = new VBox(5, bookingReferenceRow, seatRowRow, seatColumnRow, addSeatButton);
+        Label statusLabel = new Label();
+        statusLabel.textProperty().bind(model.statusMessageProperty());
+
+        VBox root = new VBox(5, bookingReferenceRow, seatRowRow, seatColumnRow, addSeatButton, statusLabel);
         root.setAlignment(Pos.CENTER);
 
-        Scene helloScene = new Scene(root, 300, 190);
+        Scene helloScene = new Scene(root, 320, 250);
 
         stage.setScene(helloScene);
         stage.show();
