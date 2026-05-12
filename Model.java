@@ -24,7 +24,17 @@ public class Model {
     }
 
     private final SimpleIntegerProperty sampleVar = new SimpleIntegerProperty();
-    private final SimpleStringProperty statusMessage = new SimpleStringProperty("");
+    private final SimpleStringProperty seatSelectionResult = new SimpleStringProperty("");
+    private final SimpleStringProperty boardingPassResult = new SimpleStringProperty("");
+    private final SimpleStringProperty retrieveInformationResult = new SimpleStringProperty("");
+    private final SimpleStringProperty baggageCheckInResult = new SimpleStringProperty("");
+    private final SimpleStringProperty extraPaymentsResult = new SimpleStringProperty("");
+    private final SimpleStringProperty identityVerificationResult = new SimpleStringProperty("");
+    private final SimpleStringProperty contrabandCheckResult = new SimpleStringProperty("");
+    private final SimpleStringProperty selfCheckInResult = new SimpleStringProperty("");
+    private final SimpleStringProperty agentCheckInResult = new SimpleStringProperty("");
+
+    private final Random random = new Random();
 
     private final List<Flight> flights = new ArrayList<>();
     private final List<Booking> bookings = new ArrayList<>();
@@ -47,8 +57,40 @@ public class Model {
         return this.sampleVar;
     }
 
-    public final SimpleStringProperty statusMessageProperty() {
-        return this.statusMessage;
+    public final SimpleStringProperty seatSelectionResultProperty() {
+        return this.seatSelectionResult;
+    }
+
+    public final SimpleStringProperty boardingPassResultProperty() {
+        return this.boardingPassResult;
+    }
+
+    public final SimpleStringProperty retrieveInformationResultProperty() {
+        return this.retrieveInformationResult;
+    }
+
+    public final SimpleStringProperty baggageCheckInResultProperty() {
+        return this.baggageCheckInResult;
+    }
+
+    public final SimpleStringProperty extraPaymentsResultProperty() {
+        return this.extraPaymentsResult;
+    }
+
+    public final SimpleStringProperty identityVerificationResultProperty() {
+        return this.identityVerificationResult;
+    }
+
+    public final SimpleStringProperty contrabandCheckResultProperty() {
+        return this.contrabandCheckResult;
+    }
+
+    public final SimpleStringProperty selfCheckInResultProperty() {
+        return this.selfCheckInResult;
+    }
+
+    public final SimpleStringProperty agentCheckInResultProperty() {
+        return this.agentCheckInResult;
     }
 
     Booking findBooking(String ref) {
@@ -63,65 +105,288 @@ public class Model {
         return null;
     }
 
-    public void createBoardingPass(String bookingRef, int row, String col) {
-        String log = "--- Create and Print Boarding Pass ---\n";
+    public void agentCheckIn(String bookingRef, String nameAtCounter, int row, String col, double weight) {
+        String log = "\n";
+        CheckInAgent agent = new CheckInAgent();
+        agent.agentID = "AGT01";
+        agent.name = "Fred";
+
         Booking booking = findBooking(bookingRef);
         if (booking == null) {
-            log += "Booking not found.";
-            statusMessage.set(log);
+            log = "Booking not found.";
+            agentCheckInResult.set(log);
+            return;
+        }
+        if (booking.passenger == null || booking.associatedFlight == null) {
+            log = "Booking is missing passenger or flight. Cannot continue.";
+            agentCheckInResult.set(log);
+            return;
+        }
+        Passenger presented = new Passenger(nameAtCounter, booking.passenger.age);
+
+        CounterCheckIn counter = new CounterCheckIn(agent, "C12", booking.associatedFlight);
+        if (!counter.verifyDocuments(booking, presented)) {
+            log = "Document verification failed. Agent check-in aborted.";
+            agentCheckInResult.set(log);
+            return;
+        }
+        counter.verifyIdentity();
+        Flight flight = booking.associatedFlight;
+        String seatNumber = "" + row + col;
+        Seat seat = flight.findSeatByNumber(seatNumber);
+        if (seat == null) {
+            log = "No such seat on this flight: " + seatNumber + "\n";
+        } else {
+            counter.selectSeat(seat);
+        }
+        counter.checkInBaggage(new Baggage(nextBaggageId(), weight));
+        counter.handlePayment();
+        counter.createBoardingPass();
+        log = "Agent-assisted check-in sequence finished for booking " + booking.bookingNum + ".";
+        agentCheckInResult.set(log);
+    }
+
+    public void selfCheckIn(String bookingRef, String name, int row, String col, double weight) {
+        String log = "\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log = "Booking not found.";
+            selfCheckInResult.set(log);
+            return;
+        }
+        if (booking.passenger == null || booking.associatedFlight == null) {
+            log = "Booking is missing passenger or flight. Cannot continue.";
+            selfCheckInResult.set(log);
+            return;
+        }
+        if (!name.equals(booking.passenger.name)) {
+            log = "Identity verification failed. Self check-in aborted.";
+            selfCheckInResult.set(log);
+            return;
+        }
+        log = "Identity verified.\n";
+        Flight flight = booking.associatedFlight;
+        SelfCheckIn kiosk = new SelfCheckIn(1, "SELF-01", flight);
+        kiosk.verifyIdentity();
+        String seatNumber = "" + row + col;
+        Seat seat = flight.findSeatByNumber(seatNumber);
+        if (seat == null) {
+            log = "No such seat on this flight: " + seatNumber + "\n";
+        } else {
+            kiosk.selectSeat(seat);
+        }
+        kiosk.checkInBaggage(new Baggage(nextBaggageId(), weight));
+        kiosk.handlePayment();
+        kiosk.createBoardingPass();
+        log = "Self check-in sequence finished for booking " + booking.bookingNum + ".";
+        selfCheckInResult.set(log);
+    }
+
+    public void checkContraband(String bookingRef) {
+        String log = "-\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log = "Booking not found.";
+            contrabandCheckResult.set(log);
+            return;
+        }
+        if (booking.baggage == null) {
+            log = "No baggage checked in for this booking.";
+            contrabandCheckResult.set(log);
+            return;
+        }
+        booking.baggage.scanForContraband(random);
+        log = "Baggage " + booking.baggage.baggageID + " status: " + booking.baggage.contrabandFlag;
+        contrabandCheckResult.set(log);
+    }
+
+    public void verifyIdentity(String bookingRef, String enteredName) {
+        String log = "\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log = "Booking not found.";
+            identityVerificationResult.set(log);
+            return;
+        }
+        if (booking.passenger == null) {
+            log = "No passenger on file for this booking.";
+            identityVerificationResult.set(log);
+            return;
+        }
+        if (enteredName.equals(booking.passenger.name)) {
+            log = "Identity verified: name matches booking " + booking.bookingNum + ".";
+        } else {
+            log = "Verification failed: name does not match booking record.";
+        }
+        identityVerificationResult.set(log);
+    }
+
+    public void extraPayments(String bookingRef, int feeType, double extraBaggageWeight) {
+        String log = "\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log = "Booking not found.";
+            extraPaymentsResult.set(log);
+            return;
+        }
+        double amount;
+        String paymentType;
+        if (feeType == 1) {
+            if (booking.baggage == null) {
+                log = "No baggage on this booking. Check in baggage before paying extra baggage fees.";
+                extraPaymentsResult.set(log);
+                return;
+            }
+            amount = 35;
+            paymentType = "EXTRA_BAGGAGE";
+        } else if (feeType == 2) {
+            amount = 25;
+            paymentType = "SEAT_SELECTION";
+        } else if (feeType == 3) {
+            amount = 40;
+            paymentType = "PRIORITY_BOARDING";
+        } else {
+            log = "Invalid choice.";
+            extraPaymentsResult.set(log);
+            return;
+        }
+        Payment p = new Payment(nextPaymentId(), amount, paymentType);
+        if (p.processPayment()) {
+            if (feeType == 1) {
+                booking.baggage.updateWeight(extraBaggageWeight);
+                log = "Baggage weight updated. Total weight: " + booking.baggage.weight + " kg\n";
+            } else if (feeType == 3) {
+                booking.priorityBoarding = true;
+            }
+            log = "Extra charge recorded for booking " + booking.bookingNum + ".";
+        }
+        extraPaymentsResult.set(log);
+    }
+
+    public void checkInBaggage(String bookingRef, double weight) {
+        String log = "--- Baggage Check-In ---\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log = "Booking not found.";
+            baggageCheckInResult.set(log);
+            return;
+        }
+        Baggage bag = new Baggage(nextBaggageId(), weight);
+        bag.markedCheckIn();
+        booking.baggage = bag;
+        booking.baggageChecked = true;
+        log = "Baggage checked in for booking " + booking.bookingNum + ".";
+        baggageCheckInResult.set(log);
+    }
+
+    public void retrieveBookingByRef(String bookingRef) {
+        String log = "\n";
+        Booking b = findBooking(bookingRef);
+        if (b == null) {
+            log = "Booking not found.";
+            retrieveInformationResult.set(log);
+            return;
+        }
+        log = bookingDetails(b);
+        retrieveInformationResult.set(log);
+    }
+
+    public List<Flight> getAllFlights() {
+        return new ArrayList<>(flights);
+    }
+
+    public List<Booking> getAllBookings() {
+        return new ArrayList<>(bookings);
+    }
+
+    String bookingDetails(Booking b) {
+        String result = "Booking reference: " + b.bookingNum + "\n";
+        result += "Date: " + b.bookingDate + "\n";
+        if (b.passenger != null) {
+            result += "Passenger: " + b.passenger.name + " (age " + b.passenger.age + ")\n";
+        }
+        if (b.associatedFlight != null) {
+            Flight f = b.associatedFlight;
+            result += "Flight: " + f.flightNumber + " | " + f.departureLocation + " -> " + f.arrivalLocation
+                    + " | duration " + f.flightDuration + " min\n";
+        }
+        Seat s = b.assignedSeatForDisplay();
+        String seatLabel;
+        if (s == null) {
+            seatLabel = "not assigned";
+        } else {
+            seatLabel = s.seatNumber;
+        }
+        result += "Seat: " + seatLabel + "\n";
+        result += "Baggage checked: " + b.baggageChecked + "\n";
+        if (b.baggage != null) {
+            result += "Baggage ID: " + b.baggage.baggageID + " | weight " + b.baggage.weight + " kg | "
+                    + "contraband scan: " + b.baggage.contrabandFlag + "\n";
+        }
+        result += "Priority boarding: " + b.priorityBoarding + "\n";
+        result += "n";
+        return result;
+    }
+
+    public void createBoardingPass(String bookingRef, int row, String col) {
+        String log = "\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log = "Booking not found.";
+            boardingPassResult.set(log);
             return;
         }
         Flight flight = booking.associatedFlight;
         if (flight == null) {
-            log += "No flight on this booking.";
-            statusMessage.set(log);
+            log = "No flight on this booking.";
+            boardingPassResult.set(log);
             return;
         }
         int passId = nextBoardingPassId();
         Seat seat = booking.assignedSeatForDisplay();
         if (seat == null) {
-            log += "No seat on booking yet. ";
+            log = "No seat on booking yet. ";
             seat = flight.findSeatByNumber("" + row + col);
             if (seat == null) {
-                log += "Invalid seat.";
-                statusMessage.set(log);
+                log = "Invalid seat.";
+                boardingPassResult.set(log);
                 return;
             }
         }
         booking.assignSeat(seat);
         BoardingPass pass = new BoardingPass(passId, seat, flight, booking.priorityBoarding);
-        log += pass;
-        statusMessage.set(log);
+        log = "" + pass;
+        boardingPassResult.set(log);
     }
 
     public void selectSeat(String bookingRef, int row, String col) {
-        String log = "--- Seat Selection ---\n";
+        String log = "\n";
         Booking booking = findBooking(bookingRef);
         if (booking == null) {
-            log += "Booking not found.";
-            statusMessage.set(log);
+            log = "Booking not found.";
+            seatSelectionResult.set(log);
             return;
         }
         Flight flight = booking.associatedFlight;
         if (flight == null) {
-            log += "No flight on this booking.";
-            statusMessage.set(log);
+            log = "No flight on this booking.";
+            seatSelectionResult.set(log);
             return;
         }
         String seatNumber = "" + row + col;
         Seat seat = flight.findSeatByNumber(seatNumber);
         if (seat == null) {
-            log += "No such seat on this flight.";
-            statusMessage.set(log);
+            log = "No such seat on this flight.";
+            seatSelectionResult.set(log);
             return;
         }
         booking.assignSeat(seat);
         if (booking.assignedSeatForDisplay() == seat) {
-            log += "Seat " + seat.seatNumber + " assigned to booking " + booking.bookingNum + ".";
+            log = "Seat " + seat.seatNumber + " assigned to booking " + booking.bookingNum + ".";
         } else {
-            log += "Seat could not be assigned (unavailable or already taken).";
+            log = "Seat could not be assigned (unavailable or already taken).";
         }
-        statusMessage.set(log);
+        seatSelectionResult.set(log);
     }
 
     // ===== Classes copied from CheckInSystemAssessA (now nested to avoid name
