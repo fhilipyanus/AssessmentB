@@ -1,3 +1,6 @@
+import java.util.Collections;
+import java.util.List;
+
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
@@ -234,7 +237,8 @@ public class View {
         stage.initModality(Modality.APPLICATION_MODAL);
 
         TableView<Booking> bookingsTable = new TableView<>();
-        bookingsTable.setItems(FXCollections.observableArrayList(controller.getAllBookings()));
+        List<Booking> bookingList = controller.getAllBookings();
+        bookingsTable.getItems().setAll(bookingList);
 
         TableColumn<Booking, String> refCol = new TableColumn<>("Booking Ref");
         refCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().bookingNum));
@@ -302,7 +306,37 @@ public class View {
         bookingsTable.getColumns().add(contrabandCol);
         bookingsTable.getColumns().add(priorityCol);
 
-        VBox root = new VBox(5, new Label("All Bookings"), bookingsTable);
+        // Added sorting collections, which was missing in Project A.
+        Button sortByPassengerNameButton = new Button("Sort by Passenger Name");
+        sortByPassengerNameButton.setOnAction(e -> {
+            Collections.sort(bookingList, (a, b) -> {
+                String an;
+                if (a.passenger == null) {
+                    an = "";
+                } else {
+                    an = a.passenger.name;
+                }
+                String bn;
+                if (b.passenger == null) {
+                    bn = "";
+                } else {
+                    bn = b.passenger.name;
+                }
+                return an.compareToIgnoreCase(bn);
+            });
+            bookingsTable.getItems().setAll(bookingList);
+        });
+
+        Button sortByBookingIdButton = new Button("Sort by Booking ID");
+        sortByBookingIdButton.setOnAction(e -> {
+            Collections.sort(bookingList, (a, b) -> a.bookingNum.compareTo(b.bookingNum));
+            bookingsTable.getItems().setAll(bookingList);
+        });
+
+        HBox sortRow = new HBox(5, sortByPassengerNameButton, sortByBookingIdButton);
+        sortRow.setAlignment(Pos.CENTER);
+
+        VBox root = new VBox(5, new Label("All Bookings"), sortRow, bookingsTable);
         root.setAlignment(Pos.CENTER);
 
         Scene helloScene = new Scene(root, 1100, 400);
