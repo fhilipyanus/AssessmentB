@@ -44,9 +44,14 @@ public class Model {
         flights.add(new Flight("JQ 501", "Sydney", "Melbourne", 100));
         flights.add(new Flight("QF 500", "Sydney", "Brisbane", 95));
 
-        bookings.add(new Booking("BK1001", "2026-04-19", new Passenger("Javier Oscar", 34), flights.get(0)));
-        bookings.add(new Booking("BK2002", "2026-04-20", new Passenger("Fhilip Yanus", 52), flights.get(1)));
-        bookings.add(new Booking("BK3003", "2026-04-21", new Passenger("Jeson Kayleen Dharmawan", 29), flights.get(2)));
+        // Booking instances.
+        // Fixed the issue in Project A, where we didn't create Confirmed and Checked In
+        bookings.add(new ConfirmedBooking("BK1001", "2026-04-19",
+                new Passenger("Javier Oscar", 34), flights.get(0)));
+        bookings.add(new CheckedInBooking("BK2002", "2026-04-20",
+                new Passenger("Fhilip Yanus", 52), flights.get(1), "08:15"));
+        bookings.add(new Booking("BK3003", "2026-04-21",
+                new Passenger("Jeson Kayleen Dharmawan", 29), flights.get(2)));
     }
 
     public final void setSampleField(final int x) {
@@ -130,7 +135,7 @@ public class Model {
             agentCheckInResult.set(log);
             return;
         }
-        counter.verifyIdentity();
+        verifyIdentity(bookingRef, nameAtCounter);
         Flight flight = booking.associatedFlight;
         String seatNumber = "" + row + col;
         Seat seat = flight.findSeatByNumber(seatNumber);
@@ -167,7 +172,7 @@ public class Model {
         log = "Identity verified.\n";
         Flight flight = booking.associatedFlight;
         SelfCheckIn kiosk = new SelfCheckIn(1, "SELF-01", flight);
-        kiosk.verifyIdentity();
+        verifyIdentity(bookingRef, name);
         String seatNumber = "" + row + col;
         Seat seat = flight.findSeatByNumber(seatNumber);
         if (seat == null) {
@@ -200,6 +205,9 @@ public class Model {
         contrabandCheckResult.set(log);
     }
 
+    // we removed the overloaded verifyIdentity function which was in project A,
+    // which had no arguments. Because, that function had no actual identity
+    // verification logic.
     public void verifyIdentity(String bookingRef, String enteredName) {
         String log = "\n";
         Booking booking = findBooking(bookingRef);
@@ -549,8 +557,10 @@ class Passenger {
 class CheckedInBooking extends Booking {
     String checkInTime;
 
-    CheckedInBooking(String bookingNum, String bookingDate, String checkInTime) {
-        super(bookingNum, bookingDate, null, null);
+    CheckedInBooking(String bookingNum, String bookingDate,
+            Passenger passenger, Flight associatedFlight,
+            String checkInTime) {
+        super(bookingNum, bookingDate, passenger, associatedFlight);
         this.checkInTime = checkInTime;
     }
 }
@@ -558,11 +568,10 @@ class CheckedInBooking extends Booking {
 class ConfirmedBooking extends Booking {
 
     SeatSelectionStatus seatSelectionStatus = SeatSelectionStatus.NOT_SELECTED;
-    String bookingDate;
 
-    ConfirmedBooking(String bookingNum, String bookingDate) {
-        super(bookingNum, bookingDate, null, null);
-        this.bookingDate = bookingDate;
+    ConfirmedBooking(String bookingNum, String bookingDate,
+            Passenger passenger, Flight associatedFlight) {
+        super(bookingNum, bookingDate, passenger, associatedFlight);
     }
 
     void confirmSeatSelection() {
@@ -660,7 +669,6 @@ class BoardingPass {
 }
 
 interface CheckInService {
-    void verifyIdentity();
 }
 
 class CheckIn implements CheckInService {
@@ -701,11 +709,6 @@ class CheckIn implements CheckInService {
 
     public void createBoardingPass(int boardingPassID, Seat seat, Flight flight) {
         BoardingPass boardingPass = new BoardingPass(boardingPassID, seat, flight);
-    }
-
-    @Override
-    public void verifyIdentity() {
-        System.out.println("Identity verified");
     }
 
     public void handlePayment(Payment payment) {
