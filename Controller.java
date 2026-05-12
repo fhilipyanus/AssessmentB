@@ -9,6 +9,10 @@ public class Controller {
         model.setSampleField(convertStringToInt(sampleField));
     }
 
+    public void selectSeat(String bookingRef, String rowStr, String col) {
+        model.selectSeat(bookingRef, convertStringToInt(rowStr), col);
+    }
+
     private int convertStringToInt(String s) {
         if (s == null || s.isEmpty()) {
             return 0;
