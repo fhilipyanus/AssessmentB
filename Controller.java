@@ -45,11 +45,11 @@ public class Controller {
         model.agentCheckIn(bookingRef, nameAtCounter, convertStringToInt(rowStr), col, convertStringToDouble(weightStr));
     }
 
-    public java.util.List<Model.Flight> getAllFlights() {
+    public java.util.List<Flight> getAllFlights() {
         return model.getAllFlights();
     }
 
-    public java.util.List<Model.Booking> getAllBookings() {
+    public java.util.List<Booking> getAllBookings() {
         return model.getAllBookings();
     }
 

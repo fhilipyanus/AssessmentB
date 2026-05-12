@@ -196,19 +196,19 @@ public class View {
         stage.initOwner(primaryStage);
         stage.initModality(Modality.APPLICATION_MODAL);
 
-        TableView<Model.Flight> flightsTable = new TableView<>();
+        TableView<Flight> flightsTable = new TableView<>();
         flightsTable.setItems(FXCollections.observableArrayList(controller.getAllFlights()));
 
-        TableColumn<Model.Flight, String> flightNumCol = new TableColumn<>("Flight Number");
+        TableColumn<Flight, String> flightNumCol = new TableColumn<>("Flight Number");
         flightNumCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().flightNumber));
 
-        TableColumn<Model.Flight, String> departureCol = new TableColumn<>("Departure");
+        TableColumn<Flight, String> departureCol = new TableColumn<>("Departure");
         departureCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().departureLocation));
 
-        TableColumn<Model.Flight, String> arrivalCol = new TableColumn<>("Arrival");
+        TableColumn<Flight, String> arrivalCol = new TableColumn<>("Arrival");
         arrivalCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().arrivalLocation));
 
-        TableColumn<Model.Flight, String> durationCol = new TableColumn<>("Duration (min)");
+        TableColumn<Flight, String> durationCol = new TableColumn<>("Duration (min)");
         durationCol.setCellValueFactory(d -> new SimpleStringProperty("" + d.getValue().flightDuration));
 
         flightsTable.getColumns().add(flightNumCol);
@@ -230,61 +230,61 @@ public class View {
         stage.initOwner(primaryStage);
         stage.initModality(Modality.APPLICATION_MODAL);
 
-        TableView<Model.Booking> bookingsTable = new TableView<>();
+        TableView<Booking> bookingsTable = new TableView<>();
         bookingsTable.setItems(FXCollections.observableArrayList(controller.getAllBookings()));
 
-        TableColumn<Model.Booking, String> refCol = new TableColumn<>("Booking Ref");
+        TableColumn<Booking, String> refCol = new TableColumn<>("Booking Ref");
         refCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().bookingNum));
 
-        TableColumn<Model.Booking, String> dateCol = new TableColumn<>("Date");
+        TableColumn<Booking, String> dateCol = new TableColumn<>("Date");
         dateCol.setCellValueFactory(d -> new SimpleStringProperty(d.getValue().bookingDate));
 
-        TableColumn<Model.Booking, String> passengerNameCol = new TableColumn<>("Passenger Name");
+        TableColumn<Booking, String> passengerNameCol = new TableColumn<>("Passenger Name");
         passengerNameCol.setCellValueFactory(d -> {
-            Model.Passenger p = d.getValue().passenger;
+            Passenger p = d.getValue().passenger;
             return new SimpleStringProperty(p == null ? "" : p.name);
         });
 
-        TableColumn<Model.Booking, String> passengerAgeCol = new TableColumn<>("Age");
+        TableColumn<Booking, String> passengerAgeCol = new TableColumn<>("Age");
         passengerAgeCol.setCellValueFactory(d -> {
-            Model.Passenger p = d.getValue().passenger;
+            Passenger p = d.getValue().passenger;
             return new SimpleStringProperty(p == null ? "" : "" + p.age);
         });
 
-        TableColumn<Model.Booking, String> flightCol = new TableColumn<>("Flight");
+        TableColumn<Booking, String> flightCol = new TableColumn<>("Flight");
         flightCol.setCellValueFactory(d -> {
-            Model.Flight f = d.getValue().associatedFlight;
+            Flight f = d.getValue().associatedFlight;
             return new SimpleStringProperty(f == null ? "" : f.flightNumber);
         });
 
-        TableColumn<Model.Booking, String> seatCol = new TableColumn<>("Seat");
+        TableColumn<Booking, String> seatCol = new TableColumn<>("Seat");
         seatCol.setCellValueFactory(d -> {
-            Model.Seat s = d.getValue().assignedSeatForDisplay();
+            Seat s = d.getValue().assignedSeatForDisplay();
             return new SimpleStringProperty(s == null ? "not assigned" : s.seatNumber);
         });
 
-        TableColumn<Model.Booking, String> baggageCheckedCol = new TableColumn<>("Baggage Checked");
+        TableColumn<Booking, String> baggageCheckedCol = new TableColumn<>("Baggage Checked");
         baggageCheckedCol.setCellValueFactory(d -> new SimpleStringProperty("" + d.getValue().baggageChecked));
 
-        TableColumn<Model.Booking, String> baggageIdCol = new TableColumn<>("Baggage ID");
+        TableColumn<Booking, String> baggageIdCol = new TableColumn<>("Baggage ID");
         baggageIdCol.setCellValueFactory(d -> {
-            Model.Baggage b = d.getValue().baggage;
+            Baggage b = d.getValue().baggage;
             return new SimpleStringProperty(b == null ? "" : b.baggageID);
         });
 
-        TableColumn<Model.Booking, String> baggageWeightCol = new TableColumn<>("Weight (kg)");
+        TableColumn<Booking, String> baggageWeightCol = new TableColumn<>("Weight (kg)");
         baggageWeightCol.setCellValueFactory(d -> {
-            Model.Baggage b = d.getValue().baggage;
+            Baggage b = d.getValue().baggage;
             return new SimpleStringProperty(b == null ? "" : "" + b.weight);
         });
 
-        TableColumn<Model.Booking, String> contrabandCol = new TableColumn<>("Contraband Scan");
+        TableColumn<Booking, String> contrabandCol = new TableColumn<>("Contraband Scan");
         contrabandCol.setCellValueFactory(d -> {
-            Model.Baggage b = d.getValue().baggage;
+            Baggage b = d.getValue().baggage;
             return new SimpleStringProperty(b == null ? "" : "" + b.contrabandFlag);
         });
 
-        TableColumn<Model.Booking, String> priorityCol = new TableColumn<>("Priority Boarding");
+        TableColumn<Booking, String> priorityCol = new TableColumn<>("Priority Boarding");
         priorityCol.setCellValueFactory(d -> new SimpleStringProperty("" + d.getValue().priorityBoarding));
 
         bookingsTable.getColumns().add(refCol);
