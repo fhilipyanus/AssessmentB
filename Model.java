@@ -63,39 +63,69 @@ public class Model {
         return null;
     }
 
-    public void selectSeat(String bookingRef, int row, String col) {
-        StringBuilder log = new StringBuilder();
-        log.append("--- Seat Selection ---\n");
+    public void createBoardingPass(String bookingRef, int row, String col) {
+        String log = "--- Create and Print Boarding Pass ---\n";
         Booking booking = findBooking(bookingRef);
         if (booking == null) {
-            log.append("Booking not found.");
-            statusMessage.set(log.toString());
+            log += "Booking not found.";
+            statusMessage.set(log);
             return;
         }
         Flight flight = booking.associatedFlight;
         if (flight == null) {
-            log.append("No flight on this booking.");
-            statusMessage.set(log.toString());
+            log += "No flight on this booking.";
+            statusMessage.set(log);
+            return;
+        }
+        int passId = nextBoardingPassId();
+        Seat seat = booking.assignedSeatForDisplay();
+        if (seat == null) {
+            log += "No seat on booking yet. ";
+            seat = flight.findSeatByNumber("" + row + col);
+            if (seat == null) {
+                log += "Invalid seat.";
+                statusMessage.set(log);
+                return;
+            }
+        }
+        booking.assignSeat(seat);
+        BoardingPass pass = new BoardingPass(passId, seat, flight, booking.priorityBoarding);
+        log += pass;
+        statusMessage.set(log);
+    }
+
+    public void selectSeat(String bookingRef, int row, String col) {
+        String log = "--- Seat Selection ---\n";
+        Booking booking = findBooking(bookingRef);
+        if (booking == null) {
+            log += "Booking not found.";
+            statusMessage.set(log);
+            return;
+        }
+        Flight flight = booking.associatedFlight;
+        if (flight == null) {
+            log += "No flight on this booking.";
+            statusMessage.set(log);
             return;
         }
         String seatNumber = "" + row + col;
         Seat seat = flight.findSeatByNumber(seatNumber);
         if (seat == null) {
-            log.append("No such seat on this flight.");
-            statusMessage.set(log.toString());
+            log += "No such seat on this flight.";
+            statusMessage.set(log);
             return;
         }
         booking.assignSeat(seat);
         if (booking.assignedSeatForDisplay() == seat) {
-            log.append("Seat ").append(seat.seatNumber)
-                    .append(" assigned to booking ").append(booking.bookingNum).append(".");
+            log += "Seat " + seat.seatNumber + " assigned to booking " + booking.bookingNum + ".";
         } else {
-            log.append("Seat could not be assigned (unavailable or already taken).");
+            log += "Seat could not be assigned (unavailable or already taken).";
         }
-        statusMessage.set(log.toString());
+        statusMessage.set(log);
     }
 
-    // ===== Classes copied from CheckInSystemAssessA (now nested to avoid name clashes) =====
+    // ===== Classes copied from CheckInSystemAssessA (now nested to avoid name
+    // clashes) =====
 
     enum ContrabandFlag {
         CLEAR,
@@ -357,12 +387,11 @@ public class Model {
             } else {
                 priorityLabel = "no";
             }
-            return "========== BOARDING PASS ==========\n"
+            return "\n"
                     + "Pass ID: " + boardingPassID + "\n"
                     + "Flight: " + fn + "  |  " + route + "\n"
                     + "Seat: " + seatNum + "\n"
-                    + "Priority boarding: " + priorityLabel + "\n"
-                    + "====================================";
+                    + "Priority boarding: " + priorityLabel + "\n";
         }
 
     }

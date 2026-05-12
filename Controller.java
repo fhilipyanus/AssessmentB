@@ -13,6 +13,10 @@ public class Controller {
         model.selectSeat(bookingRef, convertStringToInt(rowStr), col);
     }
 
+    public void createBoardingPass(String bookingRef, String rowStr, String col) {
+        model.createBoardingPass(bookingRef, convertStringToInt(rowStr), col);
+    }
+
     private int convertStringToInt(String s) {
         if (s == null || s.isEmpty()) {
             return 0;

@@ -70,6 +70,9 @@ public class View {
         });
         baggageCheckInButton = new Button("Baggage Check In");
         createBoardingPassButton = new Button("Create Boarding Pass");
+        createBoardingPassButton.setOnAction(e -> {
+            createBoardingPassWindow();
+        });
         retrieveInformationButton = new Button("Retrieve Information");
         extraPaymentsButton = new Button("Extra Payments");
         identityVerificationButton = new Button("Identity Verification");
@@ -134,6 +137,44 @@ public class View {
         root.setAlignment(Pos.CENTER);
 
         Scene helloScene = new Scene(root, 320, 250);
+
+        stage.setScene(helloScene);
+        stage.show();
+    }
+
+    private void createBoardingPassWindow() {
+        Stage stage = new Stage();
+        stage.initOwner(primaryStage);
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        TextField bookingReferenceField = new TextField();
+        HBox bookingReferenceRow = new HBox(5, new Label("Booking Reference:"), bookingReferenceField);
+        bookingReferenceRow.setAlignment(Pos.CENTER);
+
+        TextField seatRowField = new TextField();
+        HBox seatRowRow = new HBox(5, new Label("Enter Seat Row (1-30) :"), seatRowField);
+        seatRowRow.setAlignment(Pos.CENTER);
+        configTextFieldForInts(seatRowField);
+
+        TextField seatColumnField = new TextField();
+        HBox seatColumnRow = new HBox(5, new Label("Enter Seat Column (A-F) :"), seatColumnField);
+        seatColumnRow.setAlignment(Pos.CENTER);
+
+        Button createPassButton = new Button("Create Boarding Pass");
+        createPassButton.setOnAction(e -> {
+            controller.createBoardingPass(
+                    bookingReferenceField.getText(),
+                    seatRowField.getText(),
+                    seatColumnField.getText());
+        });
+
+        Label statusLabel = new Label();
+        statusLabel.textProperty().bind(model.statusMessageProperty());
+
+        VBox root = new VBox(5, bookingReferenceRow, seatRowRow, seatColumnRow, createPassButton, statusLabel);
+        root.setAlignment(Pos.CENTER);
+
+        Scene helloScene = new Scene(root, 360, 360);
 
         stage.setScene(helloScene);
         stage.show();
