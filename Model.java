@@ -206,8 +206,8 @@ public class Model {
     }
 
     // we removed the overloaded verifyIdentity function which was in project A,
-    // which had no arguments. Because, that function had no actual identity
-    // verification logic.
+    // which had no arguments.
+    // Because, that function had no actual identity verification logic.
     public void verifyIdentity(String bookingRef, String enteredName) {
         String log = "\n";
         Booking booking = findBooking(bookingRef);

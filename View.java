@@ -16,6 +16,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
 
+// This file is responsible for displaying all components, like buttons, text, etc.
+// The user interacts directly with this file.
+
 public class View {
     private VBox view;
     private Label heading;
